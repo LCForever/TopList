@@ -73,7 +73,7 @@ func (spider Spider) GetV2EX() []map[string]interface{} {
 		url, boolUrl := selection.Find("a").Attr("href")
 		text := selection.Find("a").Text()
 		if boolUrl {
-			allData = append(allData, map[string]interface{}{"title": text, "url": "https://www.v2ex.com" + url})
+			allData = append(allData, map[string]interface{}{"cover":"", "title": text, "url": "https://www.v2ex.com" + url})
 		}
 	})
 	return allData
@@ -108,7 +108,7 @@ func (spider Spider) GetITHome() []map[string]interface{} {
 		url, boolUrl := selection.Find("a").Attr("href")
 		text := selection.Find("a").Text()
 		if boolUrl {
-			allData = append(allData, map[string]interface{}{"title": text, "url": url})
+			allData = append(allData, map[string]interface{}{"cover":"", "title": text, "url": url})
 		}
 	})
 	return allData
@@ -142,11 +142,15 @@ func (spider Spider) GetZhiHu() []map[string]interface{} {
 		fmt.Println("抓取" + spider.DataType + "失败")
 		return []map[string]interface{}{}
 	}
-	document.Find(".HotList-list .HotItem-content").Each(func(i int, selection *goquery.Selection) {
-		url, boolUrl := selection.Find("a").Attr("href")
-		text := selection.Find("h2").Text()
-		if boolUrl {
-			allData = append(allData, map[string]interface{}{"title": text, "url": url})
+	document.Find(".HotList-list .HotItem-img").Each(func(i int, selection *goquery.Selection) {
+		url, boolUrl := selection.Attr("href")
+		title, boolTitle := selection.Attr("title")
+		cover, boolCover := selection.Find("img").Attr("src")
+		if !boolCover{
+			cover = ""
+		}
+		if boolUrl && boolTitle{
+			allData = append(allData, map[string]interface{}{"cover":cover, "title": title, "url": url})
 		}
 	})
 	return allData
@@ -187,7 +191,7 @@ func (spider Spider) GetWeiBo() []map[string]interface{} {
 		textLock := selection.Find("a em").Text()
 		text = strings.Replace(text, textLock, "", -1)
 		if boolUrl {
-			allData = append(allData, map[string]interface{}{"title": text, "url": "https://s.weibo.com" + url})
+			allData = append(allData, map[string]interface{}{"cover":"", "title": text, "url": "https://s.weibo.com" + url})
 		}
 	})
 	return allData[1:]
@@ -212,7 +216,7 @@ func (spider Spider) GetTieBa() []map[string]interface{} {
 	i := 1
 	for i < 30 {
 		test := js.Get("data").Get("bang_topic").Get("topic_list").GetIndex(i).MustMap()
-		allData = append(allData, map[string]interface{}{"title": test["topic_name"], "url": test["topic_url"]})
+		allData = append(allData, map[string]interface{}{"cover":"", "title": test["topic_name"], "url": test["topic_url"]})
 		i++
 	}
 	return allData
@@ -255,7 +259,7 @@ func (spider Spider) GetDouBan() []map[string]interface{} {
 		url, boolUrl := selection.Find("h3 a").Attr("href")
 		text := selection.Find("h3 a").Text()
 		if boolUrl {
-			allData = append(allData, map[string]interface{}{"title": text, "url": url})
+			allData = append(allData, map[string]interface{}{"cover":"", "title": text, "url": url})
 		}
 	})
 	return allData
@@ -298,7 +302,7 @@ func (spider Spider) GetTianYa() []map[string]interface{} {
 		url, boolUrl := s.Attr("href")
 		text := s.Text()
 		if boolUrl {
-			allData = append(allData, map[string]interface{}{"title": text, "url": "http://bbs.tianya.cn/" + url})
+			allData = append(allData, map[string]interface{}{"cover":"", "title": text, "url": "http://bbs.tianya.cn/" + url})
 		}
 	})
 	return allData
@@ -341,7 +345,7 @@ func (spider Spider) GetHuPu() []map[string]interface{} {
 		url, boolUrl := s.Attr("href")
 		text := s.Text()
 		if boolUrl {
-			allData = append(allData, map[string]interface{}{"title": text, "url": "https://bbs.hupu.com/" + url})
+			allData = append(allData, map[string]interface{}{"cover":"", "title": text, "url": "https://bbs.hupu.com/" + url})
 		}
 	})
 	return allData
@@ -385,7 +389,7 @@ func (spider Spider) GetGitHub() []map[string]interface{} {
 		text := s.Text()
 		descText := selection.Find("p").Text()
 		if boolUrl {
-			allData = append(allData, map[string]interface{}{"title": text, "desc": descText, "url": "https://github.com" + url})
+			allData = append(allData, map[string]interface{}{"cover":"", "title": text, "desc": descText, "url": "https://github.com" + url})
 		}
 	})
 	return allData
@@ -425,7 +429,7 @@ func (spider Spider) GetBaiDu() []map[string]interface{} {
 		text := s.Text()
 		MyText, _ := GbkToUtf8([]byte(text))
 		if boolUrl {
-			allData = append(allData, map[string]interface{}{"title": string(MyText), "url": url})
+			allData = append(allData, map[string]interface{}{"cover":"", "title": string(MyText), "url": url})
 		}
 	})
 	return allData
@@ -468,7 +472,7 @@ func (spider Spider) Get36Kr() []map[string]interface{} {
 		url, boolUrl := s.Attr("href")
 		text := selection.Find("a p").Text()
 		if boolUrl {
-			allData = append(allData, map[string]interface{}{"title": string(text), "url": "https://36kr.com" + url})
+			allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://36kr.com" + url})
 		}
 	})
 	document.Find(".hotlist-item-other-info").Each(func(i int, selection *goquery.Selection) {
@@ -476,7 +480,7 @@ func (spider Spider) Get36Kr() []map[string]interface{} {
 		url, boolUrl := s.Attr("href")
 		text := s.Text()
 		if boolUrl {
-			allData = append(allData, map[string]interface{}{"title": string(text), "url": "https://36kr.com" + url})
+			allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://36kr.com" + url})
 		}
 	})
 	return allData
@@ -520,7 +524,7 @@ func (spider Spider) GetQDaily() []map[string]interface{} {
 		text := selection.Find(".grid-article-bd h3").Text()
 		if len(text) != 0 {
 			if boolUrl {
-				allData = append(allData, map[string]interface{}{"title": string(text), "url": "https://www.qdaily.com/" + url})
+				allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://www.qdaily.com/" + url})
 			}
 		}
 	})
@@ -564,7 +568,7 @@ func (spider Spider) GetGuoKr() []map[string]interface{} {
 		text := s.Text()
 		if len(text) != 0 {
 			if boolUrl {
-				allData = append(allData, map[string]interface{}{"title": string(text), "url": url})
+				allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": url})
 			}
 		}
 	})
@@ -608,7 +612,7 @@ func (spider Spider) GetHuXiu() []map[string]interface{} {
 		text := s.Find("h5").Text()
 		if len(text) != 0 {
 			if boolUrl {
-				allData = append(allData, map[string]interface{}{"title": string(text), "url": "https://www.huxiu.com" + url})
+				allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://www.huxiu.com" + url})
 			}
 		}
 	})
@@ -618,7 +622,7 @@ func (spider Spider) GetHuXiu() []map[string]interface{} {
 		text := s.Find("h5").Text()
 		if len(text) != 0 {
 			if boolUrl {
-				allData = append(allData, map[string]interface{}{"title": string(text), "url": "https://www.huxiu.com" + url})
+				allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://www.huxiu.com" + url})
 			}
 		}
 	})
@@ -658,7 +662,7 @@ func (spider Spider) GetDBMovie() []map[string]interface{} {
 		text := s.Find("p").Text()
 		if len(text) != 0 {
 			if boolUrl {
-				allData = append(allData, map[string]interface{}{"title": string(text), "url": "https://www.huxiu.com" + url})
+				allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://www.huxiu.com" + url})
 			}
 		}
 	})
@@ -700,7 +704,7 @@ func (spider Spider) GetZHDaily() []map[string]interface{} {
 		text := s.Find("span").Text()
 		if len(text) != 0 {
 			if boolUrl {
-				allData = append(allData, map[string]interface{}{"title": string(text), "url": "https://daily.zhihu.com" + url})
+				allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://daily.zhihu.com" + url})
 			}
 		}
 	})
@@ -742,7 +746,7 @@ func (spider Spider) GetSegmentfault() []map[string]interface{} {
 		text := s.Find("h4").Text()
 		if len(text) != 0 {
 			if boolUrl {
-				allData = append(allData, map[string]interface{}{"title": string(text), "url": "https://segmentfault.com" + url})
+				allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://segmentfault.com" + url})
 			}
 		}
 	})
@@ -784,7 +788,7 @@ func (spider Spider) GetHacPai() []map[string]interface{} {
 		text := s.Text()
 		if len(text) != 0 {
 			if boolUrl {
-				allData = append(allData, map[string]interface{}{"title": string(text), "url": url})
+				allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": url})
 			}
 		}
 	})
@@ -827,7 +831,7 @@ func (spider Spider) GetWYNews() []map[string]interface{} {
 		if len(text) != 0 {
 			if boolUrl {
 				if len(allData) <= 100 {
-					allData = append(allData, map[string]interface{}{"title": string(text), "url": url})
+					allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": url})
 				}
 			}
 		}
@@ -873,7 +877,7 @@ func (spider Spider) GetWaterAndWood() []map[string]interface{} {
 		if len(text) != 0 {
 			if boolUrl {
 				if len(allData) <= 100 {
-					allData = append(allData, map[string]interface{}{"title": string(text), "url": "https://www.newsmth.net" + url})
+					allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://www.newsmth.net" + url})
 				}
 			}
 		}
@@ -886,7 +890,7 @@ func (spider Spider) GetWaterAndWood() []map[string]interface{} {
 			if len(text) != 0 {
 				if boolUrl {
 					if len(allData) <= 100 {
-						allData = append(allData, map[string]interface{}{"title": string(text), "url": "https://www.newsmth.net" + url})
+						allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://www.newsmth.net" + url})
 					}
 				}
 			}
@@ -933,7 +937,7 @@ func (spider Spider) GetNGA() []map[string]interface{} {
 		if len(text) != 0 {
 			if boolUrl {
 				if len(allData) <= 100 {
-					allData = append(allData, map[string]interface{}{"title": string(text), "url": url})
+					allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": url})
 				}
 			}
 		}
@@ -977,7 +981,7 @@ func (spider Spider) GetCSDN() []map[string]interface{} {
 		if len(text) != 0 {
 			if boolUrl {
 				if len(allData) <= 100 {
-					allData = append(allData, map[string]interface{}{"title": string(text), "url": url})
+					allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": url})
 				}
 			}
 		}
@@ -1022,7 +1026,7 @@ func (spider Spider) GetWeiXin() []map[string]interface{} {
 		if len(text) != 0 {
 			if boolUrl {
 				if len(allData) <= 100 {
-					allData = append(allData, map[string]interface{}{"title": string(text), "url": url})
+					allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": url})
 				}
 			}
 		}
@@ -1068,7 +1072,7 @@ func (spider Spider) GetKD() []map[string]interface{} {
 		if len(text) != 0 {
 			if boolUrl {
 				if len(allData) <= 100 {
-					allData = append(allData, map[string]interface{}{"title": string(text), "url": url})
+					allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": url})
 				}
 			}
 		}
@@ -1114,7 +1118,7 @@ func (spider Spider) GetMop() []map[string]interface{} {
 		if len(text) != 0 {
 			if boolUrl {
 				if len(allData) <= 100 {
-					allData = append(allData, map[string]interface{}{"title": string(text), "url": url})
+					allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": url})
 				}
 			}
 		}
@@ -1126,7 +1130,7 @@ func (spider Spider) GetMop() []map[string]interface{} {
 		if len(text) != 0 {
 			if boolUrl {
 				if len(allData) <= 100 {
-					allData = append(allData, map[string]interface{}{"title": string(text), "url": url})
+					allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": url})
 				}
 			}
 		}
@@ -1172,7 +1176,7 @@ func (spider Spider) GetChiphell() []map[string]interface{} {
 		if len(text) != 0 {
 			if boolUrl {
 				if len(allData) <= 100 {
-					allData = append(allData, map[string]interface{}{"title": string(text), "url": "https://www.chiphell.com/" + url})
+					allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://www.chiphell.com/" + url})
 				}
 			}
 		}
@@ -1185,7 +1189,7 @@ func (spider Spider) GetChiphell() []map[string]interface{} {
 		if len(text) != 0 {
 			if boolUrl {
 				if len(allData) <= 100 {
-					allData = append(allData, map[string]interface{}{"title": string(text), "url": "https://www.chiphell.com/" + url})
+					allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://www.chiphell.com/" + url})
 				}
 			}
 		}
@@ -1198,7 +1202,7 @@ func (spider Spider) GetChiphell() []map[string]interface{} {
 		if len(text) != 0 {
 			if boolUrl {
 				if len(allData) <= 100 {
-					allData = append(allData, map[string]interface{}{"title": string(text), "url": "https://www.chiphell.com/" + url})
+					allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://www.chiphell.com/" + url})
 				}
 			}
 		}
@@ -1211,7 +1215,7 @@ func (spider Spider) GetChiphell() []map[string]interface{} {
 		if len(text) != 0 {
 			if boolUrl {
 				if len(allData) <= 100 {
-					allData = append(allData, map[string]interface{}{"title": string(text), "url": "https://www.chiphell.com/" + url})
+					allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://www.chiphell.com/" + url})
 				}
 			}
 		}
@@ -1224,7 +1228,7 @@ func (spider Spider) GetChiphell() []map[string]interface{} {
 		if len(text) != 0 {
 			if boolUrl {
 				if len(allData) <= 100 {
-					allData = append(allData, map[string]interface{}{"title": string(text), "url": "https://www.chiphell.com/" + url})
+					allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://www.chiphell.com/" + url})
 				}
 			}
 		}
@@ -1237,7 +1241,7 @@ func (spider Spider) GetChiphell() []map[string]interface{} {
 		if len(text) != 0 {
 			if boolUrl {
 				if len(allData) <= 100 {
-					allData = append(allData, map[string]interface{}{"title": string(text), "url": "https://www.chiphell.com/" + url})
+					allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://www.chiphell.com/" + url})
 				}
 			}
 		}
@@ -1250,7 +1254,7 @@ func (spider Spider) GetChiphell() []map[string]interface{} {
 		if len(text) != 0 {
 			if boolUrl {
 				if len(allData) <= 100 {
-					allData = append(allData, map[string]interface{}{"title": string(text), "url": "https://www.chiphell.com/" + url})
+					allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://www.chiphell.com/" + url})
 				}
 			}
 		}
@@ -1296,7 +1300,7 @@ func (spider Spider) GetJianDan() []map[string]interface{} {
 		if len(text) != 0 {
 			if boolUrl {
 				if len(allData) <= 100 {
-					allData = append(allData, map[string]interface{}{"title": string(text), "url": url})
+					allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": url})
 				}
 			}
 		}
@@ -1328,7 +1332,7 @@ func (spider Spider) GetChouTi() []map[string]interface{} {
 	for i < 30 {
 		test := js.Get("data").GetIndex(i).MustMap()
 		if test["title"] != nil && test["url"] != nil {
-			allData = append(allData, map[string]interface{}{"title": test["title"], "url": test["url"]})
+			allData = append(allData, map[string]interface{}{"cover":"", "title": test["title"], "url": test["url"]})
 		}
 		i++
 	}
@@ -1336,7 +1340,7 @@ func (spider Spider) GetChouTi() []map[string]interface{} {
 	for j < 60 {
 		test := js2.Get("data").GetIndex(j).MustMap()
 		if test["title"] != nil && test["url"] != nil {
-			allData = append(allData, map[string]interface{}{"title": test["title"], "url": test["url"]})
+			allData = append(allData, map[string]interface{}{"cover":"", "title": test["title"], "url": test["url"]})
 		}
 		j++
 	}
@@ -1356,6 +1360,11 @@ func GbkToUtf8(s []byte) ([]byte, error) {
 	return d, nil
 }
 
+const(
+	APP_ID = "396fe313986acec301efe775b0b72996"
+	REST_KEY = "6a338adafbaf70c1c0c04a04a0a6f911"
+)
+
 /**
 执行每个分类数据
 */
@@ -1364,8 +1373,20 @@ func ExecGetData(spider Spider) {
 	dataType := reflectValue.MethodByName("Get" + spider.DataType)
 	data := dataType.Call(nil)
 	originData := data[0].Interface().([]map[string]interface{})
+	finalData := []map[string]interface{}{}
+	var strTmpUrl, strTmpTitle, strCover string
+	for _, item := range originData{
+		strTmpUrl = strings.TrimSpace(item["url"].(string))
+		strTmpTitle = strings.TrimSpace(item["title"].(string))
+		strCover = strings.TrimSpace(item["cover"].(string))
+		if !strings.HasPrefix(strTmpUrl, "https") || 0 == len(strTmpTitle){
+			continue
+		}
+		finalData = append(finalData, map[string]interface{}{"cover":strCover, "title": strTmpTitle, "url": strTmpUrl})
+	}
 	start := time.Now()
-	Common.MySql{}.GetConn().Where(map[string]string{"dataType": spider.DataType}).Update("hotData2", map[string]string{"str": SaveDataToJson(originData)})
+	//Common.MySql{}.GetConn().Where(map[string]string{"dataType": spider.DataType}).Update("hotData2", map[string]string{"str": SaveDataToJson(originData)})
+	Common.InsertData(spider.DataType, finalData, APP_ID, REST_KEY)
 	group.Done()
 	seconds := time.Since(start).Seconds()
 	fmt.Printf("耗费 %.2fs 秒完成抓取%s", seconds, spider.DataType)
@@ -1376,6 +1397,7 @@ func ExecGetData(spider Spider) {
 var group sync.WaitGroup
 
 func main() {
+	/*
 	allData := []string{
 		"V2EX",
 		"ZhiHu",
@@ -1403,6 +1425,28 @@ func main() {
 		"JianDan",
 		"ChouTi",
 		"ITHome",
+	}*/
+	allData := []string{
+		"ZhiHu",
+		/*
+		"WeiBo",
+		"DouBan",
+		"HuPu",
+		"GitHub",
+		"36Kr",
+		"QDaily",	//好奇心日报
+		"ZHDaily",	//知乎日报
+		"Segmentfault",
+		"WYNews",	//网易
+		"WaterAndWood",
+		"HacPai",
+		"KD",
+		"NGA",
+		"WeiXin",
+		"Chiphell",
+		"ChouTi",
+		"ITHome",
+		*/
 	}
 	fmt.Println("开始抓取" + strconv.Itoa(len(allData)) + "种数据类型")
 	group.Add(len(allData))
