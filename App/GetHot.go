@@ -243,7 +243,8 @@ func (spider Spider) GetDouBan() []map[string]interface{} {
 	res, err := client.Do(request)
 
 	if err != nil {
-		fmt.Println("抓取" + spider.DataType + "失败")
+		fmt.Print("抓取" + spider.DataType + "失败: ")
+		fmt.Println(err)
 		return []map[string]interface{}{}
 	}
 	defer res.Body.Close()
@@ -258,8 +259,12 @@ func (spider Spider) GetDouBan() []map[string]interface{} {
 	document.Find(".channel-item").Each(func(i int, selection *goquery.Selection) {
 		url, boolUrl := selection.Find("h3 a").Attr("href")
 		text := selection.Find("h3 a").Text()
+		cover, boolCover := selection.Find(".pic-wrap img").Attr("src")
+		if !boolCover{
+			cover = ""
+		}
 		if boolUrl {
-			allData = append(allData, map[string]interface{}{"cover":"", "title": text, "url": url})
+			allData = append(allData, map[string]interface{}{"cover":cover, "title": text, "url": url})
 		}
 	})
 	return allData
@@ -470,9 +475,13 @@ func (spider Spider) Get36Kr() []map[string]interface{} {
 	document.Find(".hotlist-item-toptwo").Each(func(i int, selection *goquery.Selection) {
 		s := selection.Find("a").First()
 		url, boolUrl := s.Attr("href")
+		cover, boolCover := selection.Find("a img").Attr("src")
+		if !boolCover{
+			cover = ""
+		}
 		text := selection.Find("a p").Text()
 		if boolUrl {
-			allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://36kr.com" + url})
+			allData = append(allData, map[string]interface{}{"cover":cover, "title": string(text), "url": "https://36kr.com" + url})
 		}
 	})
 	document.Find(".hotlist-item-other-info").Each(func(i int, selection *goquery.Selection) {
@@ -483,6 +492,7 @@ func (spider Spider) Get36Kr() []map[string]interface{} {
 			allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://36kr.com" + url})
 		}
 	})
+	fmt.Println(allData)
 	return allData
 
 }
@@ -1427,13 +1437,14 @@ func main() {
 		"ITHome",
 	}*/
 	allData := []string{
-		"ZhiHu",
-		/*
-		"WeiBo",
-		"DouBan",
-		"HuPu",
-		"GitHub",
+		//"ZhiHu",
+		//"WeiBo",	//没有图片不用处理
+		//"DouBan",
+		//"HuPu",	//没有图片不用处理
+		//"GitHub",
+		
 		"36Kr",
+		/*
 		"QDaily",	//好奇心日报
 		"ZHDaily",	//知乎日报
 		"Segmentfault",

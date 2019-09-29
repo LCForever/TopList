@@ -13,7 +13,7 @@ func insert(strTable string, itemData map[string]interface{}, appConfig bmob.Res
 		return false
 	}
 	var respDst interface{}
-	header, err := bmob.DoRestReq(appConfig, 
+	_, err = bmob.DoRestReq(appConfig, 
 		bmob.RestRequest{
 			BaseReq: bmob.BaseReq{
 				Method: "POST",
@@ -23,8 +23,6 @@ func insert(strTable string, itemData map[string]interface{}, appConfig bmob.Res
 			Body: jsonData},
 			&respDst)
 	if nil == err {
-		fmt.Println(header)
-		fmt.Println(respDst)
 		return true
 	} else {
 		fmt.Println("DoRestReq error: ", err)
