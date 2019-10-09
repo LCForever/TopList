@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/bitly/go-simplejson"
+	"github.com/tidwall/gjson"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
 	"io"
@@ -18,6 +19,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"regexp"
 )
 
 type HotData struct {
@@ -467,34 +469,35 @@ func (spider Spider) Get36Kr() []map[string]interface{} {
 	//str,_ := ioutil.ReadAll(res.Body)
 	//fmt.Println(string(str))
 	var allData []map[string]interface{}
-	document, err := goquery.NewDocumentFromReader(res.Body)
-	if err != nil {
-		fmt.Println("抓取" + spider.DataType + "失败")
-		return []map[string]interface{}{}
+	strhtml, _ := ioutil.ReadAll(res.Body)
+	reg := regexp.MustCompile("<script>window.initialState=(.*)</script>")
+	result := reg.FindAllStringSubmatch(string(strhtml), -1)
+
+	leftItems := gjson.Get(result[0][1], "homeData.data.bannerLeft.data")
+	if leftItems.Exists(){
+		for _, item := range leftItems.Array(){
+			url := item.Get("url").String()
+			cover := item.Get("cover").String()
+			title := item.Get("title").String()
+			if 0 != len(url) && 0 != len(title){
+				allData = append(allData, map[string]interface{}{"cover":cover, "title": title, "url": url})
+			}
+		}
 	}
-	document.Find(".hotlist-item-toptwo").Each(func(i int, selection *goquery.Selection) {
-		s := selection.Find("a").First()
-		url, boolUrl := s.Attr("href")
-		cover, boolCover := selection.Find("a img").Attr("src")
-		if !boolCover{
-			cover = ""
+
+	rightItems := gjson.Get(result[0][1], "homeData.data.bannerRight.data")
+	if rightItems.Exists(){
+		for _, item := range rightItems.Array(){
+			url := item.Get("url").String()
+			cover := item.Get("cover").String()
+			title := item.Get("title").String()
+			if 0 != len(url) && 0 != len(title){
+				allData = append(allData, map[string]interface{}{"cover":cover, "title": title, "url": url})
+			}
 		}
-		text := selection.Find("a p").Text()
-		if boolUrl {
-			allData = append(allData, map[string]interface{}{"cover":cover, "title": string(text), "url": "https://36kr.com" + url})
-		}
-	})
-	document.Find(".hotlist-item-other-info").Each(func(i int, selection *goquery.Selection) {
-		s := selection.Find("a").First()
-		url, boolUrl := s.Attr("href")
-		text := s.Text()
-		if boolUrl {
-			allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://36kr.com" + url})
-		}
-	})
+	}
 	fmt.Println(allData)
 	return allData
-
 }
 
 func (spider Spider) GetQDaily() []map[string]interface{} {
