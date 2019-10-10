@@ -531,6 +531,7 @@ func (spider Spider) GetQDaily() []map[string]interface{} {
 		fmt.Println("抓取" + spider.DataType + "失败")
 		return []map[string]interface{}{}
 	}
+
 	document.Find(".packery-item").Each(func(i int, selection *goquery.Selection) {
 		s := selection.Find("a").First()
 		url, boolUrl := s.Attr("href")
@@ -540,7 +541,14 @@ func (spider Spider) GetQDaily() []map[string]interface{} {
 				allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://www.qdaily.com/" + url})
 			}
 		}
+		text = selection.Find(".grid-banner-article-bd h3").Text()
+		if len(text) != 0 {
+			if boolUrl {
+				allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://www.qdaily.com/" + url})
+			}
+		}
 	})
+	fmt.Println(allData)
 	return allData
 }
 
@@ -714,10 +722,14 @@ func (spider Spider) GetZHDaily() []map[string]interface{} {
 	document.Find(".row .box").Each(func(i int, selection *goquery.Selection) {
 		s := selection.Find("a").First()
 		url, boolUrl := s.Attr("href")
+		cover, boolCover := s.Find("img").Attr("src")
+		if !boolCover{
+			cover = ""
+		}
 		text := s.Find("span").Text()
 		if len(text) != 0 {
 			if boolUrl {
-				allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://daily.zhihu.com" + url})
+				allData = append(allData, map[string]interface{}{"cover":cover, "title": string(text), "url": "https://daily.zhihu.com" + url})
 			}
 		}
 	})
@@ -753,13 +765,21 @@ func (spider Spider) GetSegmentfault() []map[string]interface{} {
 		fmt.Println("抓取" + spider.DataType + "失败")
 		return []map[string]interface{}{}
 	}
+	reg := regexp.MustCompile(`url\((.*)\)`)
 	document.Find(".news-list .news__item-info").Each(func(i int, selection *goquery.Selection) {
+		cover, boolCover := selection.Find("a").First().Attr("style")
+		if boolCover{
+			result := reg.FindAllStringSubmatch(string(cover), -1)
+			cover = result[0][1]
+		} else{
+			cover = ""
+		}
 		s := selection.Find("a:nth-child(2)").First()
 		url, boolUrl := s.Attr("href")
 		text := s.Find("h4").Text()
 		if len(text) != 0 {
 			if boolUrl {
-				allData = append(allData, map[string]interface{}{"cover":"", "title": string(text), "url": "https://segmentfault.com" + url})
+				allData = append(allData, map[string]interface{}{"cover":cover, "title": string(text), "url": "https://segmentfault.com" + url})
 			}
 		}
 	})
@@ -849,6 +869,7 @@ func (spider Spider) GetWYNews() []map[string]interface{} {
 			}
 		}
 	})
+	fmt.Println(allData)
 	return allData
 }
 
@@ -1446,13 +1467,18 @@ func main() {
 		//"HuPu",	//没有图片不用处理
 		//"GitHub",
 		
-		"36Kr",
-		/*
-		"QDaily",	//好奇心日报
-		"ZHDaily",	//知乎日报
-		"Segmentfault",
-		"WYNews",	//网易
+		//"36Kr",
+		
+		//"QDaily",	//好奇心日报//图片都是http的，不合适
+		
+		//"ZHDaily",	//知乎日报
+		
+		//"Segmentfault",
+		
+		//"WYNews",	//网易,没有图片
+		
 		"WaterAndWood",
+		/*
 		"HacPai",
 		"KD",
 		"NGA",
